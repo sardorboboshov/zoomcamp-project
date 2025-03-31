@@ -1,0 +1,48 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore Airflow logs and temporary files
+logs/
+airflow.db
+*.pid
+
+# Ignore SQLite database (if used locally)
+airflow.cfg
+unittests.cfg
+webserver_config.py
+
+# Ignore Airflow scheduler and executor-related files
+dag_run/
+scheduler_job.log
+executor.log
+*.log
+
+# Ignore environment files
+.env
+*.env
+.envrc
+
+# Ignore virtual environments
+venv/
+.env/
+*.egg-info/
+
+# Ignore dependencies
+*.lock
+poetry.lock
+Pipfile
+Pipfile.lock
+
+# Ignore Docker-related files (if using Docker)
+.dockerignore
+docker-compose.override.yml
+
+# Ignore Kubernetes and Terraform files (if applicable)
+*.tfstate
+*.tfstate.backup
+.kube/
+.terraform/
+.terraform.lock.hcl
