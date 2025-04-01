@@ -1,4 +1,4 @@
-from utils.etl_functions import web_to_gcs
+from utils.etl_functions import web_to_gcs, list_of_files, download_files
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models.param import Param
@@ -9,18 +9,17 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     schedule_interval=None,
     catchup=False,
-    params={
-         "year": Param(2019, type="integer", minimum=2019, maximum=2020),
-         "service": Param("yellow", type="integer")
-    }
 ) as dag:
 
-    task = PythonOperator(
-        task_id="say_hello",
-        python_callable=web_to_gcs,
-        op_kwargs={
-            ""
-        }
+    task1 = PythonOperator(
+        task_id="fetch_file_urls",
+        python_callable=list_of_files,
     )
 
-    task
+    task2 = PythonOperator(
+        task_id="download_files",
+        python_callable=download_files,
+        provide_context=True
+    )
+
+    task1 >> task2

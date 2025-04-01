@@ -1,8 +1,52 @@
 import requests
 import pandas as pd
 from google.cloud import storage
+import requests
+import xml.etree.ElementTree as ET
+import os
 
+def list_of_files():
+    
 
+    # Direct S3 URL for file listing
+    s3_url = "https://s3-eu-west-1.amazonaws.com/cycling.data.tfl.gov.uk?list-type=2&max-keys=200"
+
+    response = requests.get(s3_url)
+
+    if response.status_code == 200:
+        root = ET.fromstring(response.text)
+        
+        file_urls = []
+        
+        for content in root.findall(".//{http://s3.amazonaws.com/doc/2006-03-01/}Contents"):
+            key = content.find("{http://s3.amazonaws.com/doc/2006-03-01/}Key").text
+            if key[-3:] == 'csv':
+                file_urls.append(f"https://cycling.data.tfl.gov.uk/{key}")
+
+        # print("\n".join(file_urls))  # Print file URLs
+        for file_url in file_urls:
+            print(file_url)
+    else:
+        print(f"Failed to fetch S3 bucket contents. Status code: {response.status_code}")
+
+    return file_urls
+
+def download_files(**kwargs):
+    proxies = {
+        'http': 'http://172.28.5.9:8080',
+        'https': 'http://172.28.5.9:8080',
+    }
+    ti = kwargs['ti']
+    file_urls = ti.xcom_pull(task_ids='fetch_file_urls') 
+    print(len(file_urls))
+    for url in file_urls:
+        response = requests.get(url, stream=True, timeout=30, proxies=proxies)
+        response.raise_for_status()
+        save_path = f'/opt/airflow/dataset/{url.split('/')[-1]}'
+        print(save_path)
+        with open(save_path, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
 def upload_to_gcs(bucket, object_name, local_file, service_account_path):
     """
     Ref: https://cloud.google.com/storage/docs/uploading-objects#storage-upload-object-python
