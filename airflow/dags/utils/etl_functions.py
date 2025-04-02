@@ -5,8 +5,8 @@ import requests
 import xml.etree.ElementTree as ET
 import os
 
-def list_of_files():
-    
+def list_of_files(ti):
+    print(ti)
 
     # Direct S3 URL for file listing
     s3_url = "https://s3-eu-west-1.amazonaws.com/cycling.data.tfl.gov.uk?list-type=2&max-keys=200"
@@ -32,15 +32,15 @@ def list_of_files():
     return file_urls
 
 def download_files(**kwargs):
-    proxies = {
-        'http': 'http://172.28.5.9:8080',
-        'https': 'http://172.28.5.9:8080',
-    }
+    # proxies = {
+    #     'http': 'http:/172.28.5.9:8080',
+    #     'https': 'http://172.28.5.9:8080',
+    # }
     ti = kwargs['ti']
     file_urls = ti.xcom_pull(task_ids='fetch_file_urls') 
     print(len(file_urls))
     for url in file_urls:
-        response = requests.get(url, stream=True, timeout=30, proxies=proxies)
+        response = requests.get(url, stream=True, timeout=30)
         response.raise_for_status()
         save_path = f'/opt/airflow/dataset/{url.split('/')[-1]}'
         print(save_path)

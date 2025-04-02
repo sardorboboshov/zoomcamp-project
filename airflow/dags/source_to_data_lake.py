@@ -3,12 +3,19 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models.param import Param
 from datetime import datetime
+from airflow.models import Variable
+from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
+
+DATASET_PATH = Variable.get('DATASET_PATH')
+
+BUCKET_NAME = Variable.get('BUCKET_NAME')
+DESTINATION_PATH = Variable.get('DATA_LAKE_DESTINATION_PATH')  # Path inside GCS bucket
 
 with DAG(
     dag_id="source_to_data_lake",
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime(2025, 3, 15),
     schedule_interval=None,
-    catchup=False,
+    catchup=True,
 ) as dag:
 
     task1 = PythonOperator(
@@ -22,4 +29,12 @@ with DAG(
         provide_context=True
     )
 
-    task1 >> task2
+    upload_file = LocalFilesystemToGCSOperator(
+        task_id="upload_file",
+        src=DATASET_PATH + '/*',  # Local file path
+        dst=DESTINATION_PATH,  # Destination path in GCS
+        bucket=BUCKET_NAME,  
+        gcp_conn_id="google_cloud",  # Matches Airflow connection ID
+    )
+
+    task1 >> task2 >> upload_file
