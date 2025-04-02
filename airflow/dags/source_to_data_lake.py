@@ -26,7 +26,10 @@ with DAG(
     task2 = PythonOperator(
         task_id="download_files",
         python_callable=download_files,
-        provide_context=True
+        provide_context=True,
+        op_kwargs={
+            'dataset_path':DATASET_PATH
+        }
     )
 
     upload_file = LocalFilesystemToGCSOperator(
