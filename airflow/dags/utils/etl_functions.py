@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-# import polars as pl
+import polars as pl
 from google.cloud import storage
 import requests
 import xml.etree.ElementTree as ET
@@ -52,6 +52,7 @@ def process_dataset(**kwargs):
     column_mapping = {
         "Wave": "wave",
         "SiteId": "site_id",
+        "SiteID": "site_id",
         "Date": "date",
         "Weather": "weather",
         "Time": "time",
@@ -67,22 +68,25 @@ def process_dataset(**kwargs):
     
     final_df = None
 
-    # for file in csv_files:
-    #     df = pl.read_csv(file, dtypes={'SiteId': pl.Utf8})
+    for file in csv_files:
+        try:
+            df_base = pl.read_csv(file, dtypes={'SiteID': pl.Utf8})
 
-    #     df = df.rename(column_mapping)
+            df = df_base.rename(column_mapping, strict=False)
 
-    #     df = df.with_columns(
-    #         pl.col("date").str.to_date("%d/%m/%Y").alias("date")
-    #     )
+            df = df.with_columns(
+                pl.col("date").str.to_date("%d/%m/%Y").alias("date")
+            )
 
-    #     final_df = df if final_df is None else final_df.vstack(df)
-
-    #     if final_df is not None:
-    #         final_df.write_parquet("bike_history.parquet")
-    #         print(f"Saved {len(csv_files)} files into bike_history.parquet!")
-    #     else:
-    #         print("No files were processed.")
+            final_df = df if final_df is None else final_df.vstack(df)
+        except Exception as e:
+            df = pl.read_csv(file)
+            print(file, df.columns)
+    if final_df is not None:
+        final_df.write_parquet("bike_history.parquet")
+        print(f"Saved {len(csv_files)} files into bike_history.parquet!")
+    else:
+        print("No files were processed.")
 
 def upload_to_gcs(bucket, object_name, local_file, service_account_path):
     """
