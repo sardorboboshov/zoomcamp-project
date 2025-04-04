@@ -1,11 +1,12 @@
 import requests
 import pandas as pd
+# import polars as pl
 from google.cloud import storage
 import requests
 import xml.etree.ElementTree as ET
-import os
+import glob
 
-def list_of_files(DATASET_PATH, ti):
+def list_of_files(ti):
     print(ti)
 
     # Direct S3 URL for file listing
@@ -31,6 +32,8 @@ def list_of_files(DATASET_PATH, ti):
 
     return file_urls
 
+
+
 def download_files(**kwargs):
     ti = kwargs['ti']
     DATASET_PATH = kwargs['dataset_path']
@@ -44,6 +47,43 @@ def download_files(**kwargs):
         with open(save_path, 'wb') as file:
             for chunk in response.iter_content(chunk_size=8192):
                 file.write(chunk)
+
+def process_dataset(**kwargs):
+    column_mapping = {
+        "Wave": "wave",
+        "SiteId": "site_id",
+        "Date": "date",
+        "Weather": "weather",
+        "Time": "time",
+        "Day": "day",
+        "Round": "round",
+        "Direction": "direction",
+        "Path": "path",
+        "Mode": "mode",
+        "Count": "count"
+    }
+    DATASET_PATH = kwargs['dataset_path']
+    csv_files = glob.glob(f"{DATASET_PATH}/*.csv")
+    
+    final_df = None
+
+    # for file in csv_files:
+    #     df = pl.read_csv(file, dtypes={'SiteId': pl.Utf8})
+
+    #     df = df.rename(column_mapping)
+
+    #     df = df.with_columns(
+    #         pl.col("date").str.to_date("%d/%m/%Y").alias("date")
+    #     )
+
+    #     final_df = df if final_df is None else final_df.vstack(df)
+
+    #     if final_df is not None:
+    #         final_df.write_parquet("bike_history.parquet")
+    #         print(f"Saved {len(csv_files)} files into bike_history.parquet!")
+    #     else:
+    #         print("No files were processed.")
+
 def upload_to_gcs(bucket, object_name, local_file, service_account_path):
     """
     Ref: https://cloud.google.com/storage/docs/uploading-objects#storage-upload-object-python

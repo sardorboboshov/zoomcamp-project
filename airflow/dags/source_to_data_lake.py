@@ -1,10 +1,11 @@
-from utils.etl_functions import web_to_gcs, list_of_files, download_files
+from utils.etl_functions import web_to_gcs, list_of_files, download_files, process_dataset
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models.param import Param
 from datetime import datetime
 from airflow.models import Variable
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
+import polars as pl
 
 DATASET_PATH = Variable.get('DATASET_PATH')
 
@@ -40,4 +41,12 @@ with DAG(
         gcp_conn_id="google_cloud",  # Matches Airflow connection ID
     )
 
-    task1 >> task2 >> upload_file
+    process_files = PythonOperator(
+        task_id="process_files",
+        python_callable=process_dataset,
+        op_kwargs={
+            'dataset_path': DATASET_PATH
+        }
+    )
+
+    task1 >> task2 >> upload_file >> process_files
