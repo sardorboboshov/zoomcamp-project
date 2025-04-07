@@ -6,6 +6,9 @@ import requests
 import xml.etree.ElementTree as ET
 import glob
 from time import time
+from collections import Counter
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 def list_of_files(program, ti):
     print(ti)
@@ -141,18 +144,268 @@ def process_usage_stats(**kwargs):
     else:
         print("No files were processed.")
 
+def process_usage_stats_2(**kwargs):
+    t1 = time()
+    DATASET_PATH = kwargs['dataset_path']
+    FILE_NAME = kwargs['file_name']
+    csv_files = glob.glob(f"{DATASET_PATH}/*.csv")
+    
+    final_df = None
+
+    column_mapping = {
+        "Rental Id":"rental_id",
+        "Duration":"duration",
+        "Bike Id":"bike_id",
+        "End Date":"end_date",
+        "EndStation Id":"endstation_id",
+        "EndStation Name":"endstation_name",
+        "Start Date":"start_date",
+        "StartStation Id":"startstation_id",
+        "StartStation Name":"startstation_name",
+        "EndStation Logical Terminal": "endstation_id",
+        "StartStation Logical Terminal": "startstation_id",
+        "Number": "rental_id",
+        "End station number": "endstation_id",
+        "End station": "endstation_name",
+        "Start station number": "startstation_id",
+        "Start station": "startstation_name",
+        "Bike number": "bike_id",
+        "Total duration (ms)": "duration",
+        "End date": "end_date",
+        "Start date": "start_date",
+        "Duration_Seconds": "duration",
+        "End Station Id": "endstation_id",
+        "End Station Name": "endstation_name",
+        "Start Station Id": "startstation_id",
+        "Start Station Name": "startstation_name",
+    }
+    needed_cols = []
+    for v in column_mapping.values():
+        if v not in needed_cols:
+            needed_cols.append(v)
+
+
+
+    for idx, file in enumerate(csv_files):
+        t11 = time()
+        try:
+            df = pd.read_csv(file)
+            
+            schema_type = 1
+            
+            if 'Number' in df.columns:
+                schema_type = 2
+            
+            df = df.rename(columns=column_mapping)
+            df = df[needed_cols]
+
+            if schema_type == 2:
+                df['duration'] = df["duration"] // 1000
+            
+            if len(df.columns) != 9:
+                continue
+
+            final_df = df if final_df is None else pd.concat([final_df, df], axis=0)
+        except Exception as e:
+            # df = pl.read_csv(file)
+            print(e)
+            print(file)
+        t22 = time()
+        print(f"finished processing {idx + 1} / {len(csv_files)} file, which took {t22-t11:.3f} seconds, {file} ")
+    if final_df is not None:
+        final_df.to_parquet(f"{DATASET_PATH}/{FILE_NAME}.parquet")
+        print(f"Saved {len(csv_files)} files into bike_history.parquet!")
+        t2 = time()
+        print(f"It took {t2 - t1:.3f} seconds to process the files and convert to parquet!")
+    else:
+        print("No files were processed.")  
+
+def process_usage_stats_3(**kwargs):
+
+    t1 = time()
+    DATASET_PATH = kwargs['dataset_path']
+    FILE_NAME = kwargs['file_name']
+    csv_files = glob.glob(f"{DATASET_PATH}/*.csv")
+    
+    column_mapping = {
+        "Rental Id":"rental_id",
+        "Duration":"duration",
+        "Bike Id":"bike_id",
+        "End Date":"end_date",
+        "EndStation Id":"endstation_id",
+        "EndStation Name":"endstation_name",
+        "Start Date":"start_date",
+        "StartStation Id":"startstation_id",
+        "StartStation Name":"startstation_name",
+        "EndStation Logical Terminal": "endstation_id",
+        "StartStation Logical Terminal": "startstation_id",
+        "Number": "rental_id",
+        "End station number": "endstation_id",
+        "End station": "endstation_name",
+        "Start station number": "startstation_id",
+        "Start station": "startstation_name",
+        "Bike number": "bike_id",
+        "Total duration (ms)": "duration",
+        "End date": "end_date",
+        "Start date": "start_date",
+        "Duration_Seconds": "duration",
+        "End Station Id": "endstation_id",
+        "End Station Name": "endstation_name",
+        "Start Station Id": "startstation_id",
+        "Start Station Name": "startstation_name",
+    }
+    needed_cols = []
+    for v in column_mapping.values():
+        if v not in needed_cols:
+            needed_cols.append(v)
+
+    csv_files = glob.glob(f"{DATASET_PATH}/*.csv")
+
+    int_columns = set(["Total duration (ms)","Duration_Seconds", "Duration"])
+    date_columns = set(["Start Date", "Start date", "End date", "End Date"])
+    str_columns = set(column_mapping.keys()) - int_columns - date_columns
+
+    needed_cols = list(dict.fromkeys(column_mapping.values()))  # Preserve order & uniqueness
+
+    
+    count = 0
+    for idx, file in enumerate(csv_files):
+        t11 = time()
+        try:
+            df = pl.read_csv(file, dtypes={**{col: pl.Utf8 for col in str_columns}, **{col: pl.Datetime for col in date_columns}})
+
+            schema_type = 2 if "Number" in df.columns else 1
+
+            # Rename columns
+            col_renamed = {col: column_mapping[col] for col in df.columns if col in column_mapping}
+            df = df.rename(col_renamed)
+
+            # Filter only needed columns
+            df = df.select([col for col in needed_cols if col in df.columns])
+
+            # Duration adjustment
+            if schema_type == 2 and "duration" in df.columns:
+                df = df.with_columns((pl.col("duration") // 1000).alias("duration"))
+
+            # Skip malformed files
+            if df.shape[1] != 9:
+                continue
+
+            df.write_parquet(f"{file[:-4]}.parquet")
+            count += 1
+        except Exception as e:
+            print(e)
+            print(file)
+
+        t22 = time()
+        print(f"finished processing {idx + 1} / {len(csv_files)} file, which took {t22-t11:.3f} seconds, {file}")
+
+    print(f"Processed {count}  csv files into parquet!")
+
+
+def process_usage_stats_4(**kwargs):
+    t1 = time()
+    DATASET_PATH = kwargs['dataset_path']
+    FILE_NAME = kwargs['file_name']
+    csv_files = glob.glob(f"{DATASET_PATH}/*.csv")
+    
+    final_df = None
+    writer = None
+    column_mapping = {
+        "Rental Id":"rental_id",
+        "Duration":"duration",
+        "Bike Id":"bike_id",
+        "End Date":"end_date",
+        "EndStation Id":"endstation_id",
+        "EndStation Name":"endstation_name",
+        "Start Date":"start_date",
+        "StartStation Id":"startstation_id",
+        "StartStation Name":"startstation_name",
+        "EndStation Logical Terminal": "endstation_id",
+        "StartStation Logical Terminal": "startstation_id",
+        "Number": "rental_id",
+        "End station number": "endstation_id",
+        "End station": "endstation_name",
+        "Start station number": "startstation_id",
+        "Start station": "startstation_name",
+        "Bike number": "bike_id",
+        "Total duration (ms)": "duration",
+        "End date": "end_date",
+        "Start date": "start_date",
+        "Duration_Seconds": "duration",
+        "End Station Id": "endstation_id",
+        "End Station Name": "endstation_name",
+        "Start Station Id": "startstation_id",
+        "Start Station Name": "startstation_name",
+    }
+    needed_cols = []
+    for v in column_mapping.values():
+        if v not in needed_cols:
+            needed_cols.append(v)
+
+    csv_files = glob.glob(f"{DATASET_PATH}/*.csv")
+
+    for idx, file in enumerate(csv_files):
+        try:
+            df = pd.read_csv(file)
+            
+            schema_type = 1
+
+            if 'Number' in df.columns:
+                schema_type = 2
+
+            df = df.rename(columns=column_mapping)
+            df = df[needed_cols]
+            if schema_type == 2:
+                df['duration'] = df["duration"] // 1000
+            df['duration'] = df['duration'].replace([float('inf'), -float('inf')], pd.NA)  # Replace inf/-inf with NaN
+            df['duration'] = df['duration'].fillna(0).astype(int)  # Replace NaN with 0 and cast to int
+            df['rental_id'] = df['rental_id'].astype(str)
+            df['bike_id'] = df['bike_id'].astype(str)
+            df['endstation_id'] = df['endstation_id'].astype(str)
+            df['startstation_id'] = df['startstation_id'].astype(str)
+            df['end_date'] = df['end_date'].astype(str)
+            df['start_date'] = df['start_date'].astype(str)
+            df['endstation_name'] = df['endstation_name'].astype(str)
+            df['startstation_name'] = df['startstation_name'].astype(str)
+            df['duration'] = df['duration'].astype(int)   
+            if len(df.columns) != 9:
+                continue
+
+            table = pa.Table.from_pandas(df)
+
+            if writer is None:
+                writer = pq.ParquetWriter(f"{DATASET_PATH}/{FILE_NAME}.parquet", table.schema)
+
+            writer.write_table(table)
+        except Exception as e:
+            print(e)
+            print(file)
+
+    if writer:
+        writer.close()
+        print(f"Saved {len(csv_files)} files into {FILE_NAME}.parquet!")
+    else:
+        print("No files were processed.")
+
+
 def dev_info_usage_stats_cols(**kwargs):
     DATASET_PATH = kwargs['dataset_path']
     csv_files = glob.glob(f"{DATASET_PATH}/*.csv")
-
+    c = Counter()
     for idx, file in enumerate(sorted(csv_files)):
         try:
             df_base = pd.read_csv(file)
-            print(list(df_base.columns), idx, file)
+            c[",".join(df_base.columns)] += 1
+            print(list(df_base.columns), idx, file, len(c))
+
         except Exception as e:
             # df = pl.read_csv(file)
             print(e)
             print("error", file)
+
+    for key, value in c.items():
+        print(key, value)
 def upload_to_gcs(bucket, object_name, local_file, service_account_path):
     """
     Ref: https://cloud.google.com/storage/docs/uploading-objects#storage-upload-object-python
