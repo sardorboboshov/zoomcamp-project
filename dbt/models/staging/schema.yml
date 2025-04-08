@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: staging
+    database: kestra-449910
+    schema: LhF_London
+
+    tables:
+      - name: ActiveTravelCountsProgramme
+      - name: usage-stats
