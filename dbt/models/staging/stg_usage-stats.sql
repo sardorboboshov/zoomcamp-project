@@ -1,14 +1,18 @@
-with 
+{{
+    config(
+        materialized='view'
+    )
+}}
 
-source as (
+with source as (
 
-    select * from {{ source('staging', 'usage-stats') }}
+    select *,
+        row_number() over(partition by rental_id) as rn 
+    from {{ source('staging', 'usage-stats') }}
+    where rental_id is not null
+)
 
-),
-
-renamed as (
-
-    select
+select
         rental_id,
         duration,
         bike_id,
@@ -19,8 +23,5 @@ renamed as (
         startstation_id,
         startstation_name
 
-    from source
-
-)
-
-select * from renamed
+from source
+where rn = 1
