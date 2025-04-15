@@ -22,5 +22,11 @@ select
     mode,
     count
 from source
+where extract(year from date) <= 2025 and extract(year from date) >= 2014 
 
 
+-- {% if var('is_test_run', default=true) %}
+
+--     limit 100
+
+-- {% endif %}

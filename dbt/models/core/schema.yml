@@ -1,26 +1,12 @@
 version: 2
 
-sources:
-  - name: staging
-    database: kestra-449910
-    schema: LhF_London
-
-    tables:
-      - name: ActiveTravelCountsProgramme
-      - name: usage-stats
-
 models:
-  - name: stg_usage-stats
+  - name: fact_usage_stats
     description: ""
     columns:
       - name: rental_id
         data_type: string
         description: ""
-        tests:
-          - unique:
-              severity: warn
-          - not_null:
-              severity: warn
 
       - name: duration
         data_type: int64
@@ -54,7 +40,7 @@ models:
         data_type: string
         description: ""
 
-  - name: stg_ActiveTravelCountsProgramme
+  - name: fact_activetravelcountsprogramme
     description: ""
     columns:
       - name: wave
@@ -64,11 +50,6 @@ models:
       - name: site_id
         data_type: string
         description: ""
-        tests:
-          - relationships:
-              to: ref('locations_lookup')
-              field: site_id
-              severity: warn
 
       - name: date
         data_type: date
@@ -85,10 +66,6 @@ models:
       - name: day
         data_type: string
         description: ""
-        tests:
-          - accepted_values:
-              values: "{{ var('day_type_values') }}"
-              severity: warn
 
       - name: round
         data_type: string
@@ -97,10 +74,6 @@ models:
       - name: direction
         data_type: string
         description: ""
-        tests:
-          - accepted_values:
-              values: "{{ var('direction_type_values') }}"
-              severity: warn
 
       - name: path
         data_type: string
@@ -112,4 +85,51 @@ models:
 
       - name: count
         data_type: int64
+        description: ""
+
+  - name: dim_locations
+    description: ""
+    columns:
+      - name: site_id
+        data_type: string
+        description: ""
+
+      - name: description
+        data_type: string
+        description: ""
+
+      - name: borough
+        data_type: string
+        description: ""
+
+      - name: functional_area
+        data_type: string
+        description: ""
+
+      - name: road type
+        data_type: string
+        description: ""
+
+      - name: is_strategic_cio
+        data_type: int64
+        description: ""
+
+      - name: old_site_id
+        data_type: string
+        description: ""
+
+      - name: easting
+        data_type: float64
+        description: ""
+
+      - name: northing
+        data_type: float64
+        description: ""
+
+      - name: latitude
+        data_type: float64
+        description: ""
+
+      - name: longitude
+        data_type: float64
         description: ""
