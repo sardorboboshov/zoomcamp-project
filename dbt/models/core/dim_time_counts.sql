@@ -23,5 +23,5 @@ SELECT
     f.count,
     f.date
 FROM {{ ref('fact_ActiveTravelCountsProgramme') }} f
-    left join {{ ref('dim_locations') }} l
+    join {{ ref('dim_locations') }} l
         on f.site_id = l.site_id
