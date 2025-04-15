@@ -40,7 +40,7 @@ models:
         data_type: string
         description: ""
 
-  - name: fact_activetravelcountsprogramme
+  - name: fact_ActiveTravelCountsProgramme
     description: ""
     columns:
       - name: wave
