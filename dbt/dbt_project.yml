@@ -37,7 +37,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
 
-  dbt:
+  zoomcamp_project:
     # Applies to all files under models/.../
     staging:
       materialized: view
@@ -45,7 +45,7 @@ models:
       materialized: table
 
 seeds: 
-  dbt:
+  zoomcamp_project:
     locations_lookup:
 
 vars:
