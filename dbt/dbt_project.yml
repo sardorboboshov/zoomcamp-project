@@ -37,16 +37,16 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
 
-  zoomcamp-project:
+  dbt:
     # Applies to all files under models/.../
     staging:
-        materialized: view
+      materialized: view
     core:
-        materialized: table
+      materialized: table
 
 seeds: 
-    zoomcamp-project:
-        locations_lookup:
+  dbt:
+    locations_lookup:
 
 vars:
   day_type_values: ['Weekday', 'Weekend']

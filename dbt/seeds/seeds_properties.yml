@@ -1,0 +1,6 @@
+version: 2
+
+seeds: 
+  - name: locations_lookup
+    description: >
+      This seed stores data about locations
