@@ -1,4 +1,4 @@
-from utils.etl_functions import web_to_gcs, list_of_files, download_files, process_active_travel_counts
+from utils.etl_functions import list_of_files, download_files, process_active_travel_counts
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models.param import Param

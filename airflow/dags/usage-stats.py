@@ -1,4 +1,4 @@
-from utils.etl_functions import web_to_gcs, list_of_files, download_files, process_usage_stats, dev_info_usage_stats_cols, process_usage_stats_2, process_usage_stats_3, process_usage_stats_4
+from utils.etl_functions import list_of_files, download_files, dev_info_usage_stats_cols,process_usage_stats
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.models.param import Param
@@ -45,7 +45,7 @@ with DAG(
     )
     process_files = PythonOperator(
         task_id="process_files",
-        python_callable=process_usage_stats_3,
+        python_callable=process_usage_stats,
         op_kwargs={
             'dataset_path': DATASET_PATH + f'/{PROGRAM}',
             'file_name': FILE_NAME
