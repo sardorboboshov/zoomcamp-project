@@ -1,3 +1,5 @@
 google-cloud
 pandas
 polars
+astronomer-providers
+apache-airflow-providers-dbt-cloud

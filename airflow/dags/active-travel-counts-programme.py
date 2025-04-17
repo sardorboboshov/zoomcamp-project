@@ -5,6 +5,7 @@ from airflow.models.param import Param
 from datetime import datetime
 from airflow.models import Variable
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
+from astronomer.providers.dbt.cloud.operators.dbt import DbtCloudRunJobOperator
 import polars as pl
 
 DATASET_PATH = Variable.get('DATASET_PATH')
@@ -55,6 +56,15 @@ with DAG(
         gcp_conn_id="google_cloud",  # Matches Airflow connection ID
     )
 
+    trigger_dbt_cloud_job = DbtCloudRunJobOperator(
+        task_id="trigger_dbt_job",
+        job_id=70471823454045,  # Your dbt Cloud Job ID
+        account_id=70471823431236,  # Your dbt Cloud Account ID (optional if included in Extra)
+        dbt_cloud_conn_id="dbt_cloud",  # The connection ID you've set up in Airflow
+        check_interval=30,  # polling interval in seconds
+        timeout=600,  # timeout in seconds
+        wait_for_termination=True,  # wait until job is finished
+    )
     
 
-    task1 >> task2 >> process_files >> upload_file
+    task1 >> task2 >> process_files >> upload_file >> trigger_dbt_cloud_job
