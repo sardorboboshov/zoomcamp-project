@@ -7,11 +7,14 @@ Airflow is used to fetch and process raw data from dataset and upload the files 
 
 DBT is used to process the uploaded data and create the DWH in BigQuery from uploaded data.
 
+Airflow will trigger the DBT Cloud Job every month.
 ## Data Pipeline
 Current project uses Batch Streaming and Airflow used for orchestration.
 
 ## Transformations
-
+Transformations happens 2 times in the project:
+1. **Polars, Pandas**: Columns have inconsistent number of columns and names, so they neeed to be in 1 schema so table can be created from them without any problem
+2. **DBT Cloud**: DBT Cloud takes the data from staging tables and creates the table. Cloud job will build the models and push the created tables in prod dataset.
 
 ## Technologies
 1. **Cloud**: GCP
