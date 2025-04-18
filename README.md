@@ -33,4 +33,11 @@ Visualisation created for choosen year(s) and direction(s).
 
 ![graphs](dashboard.png)   
 
+## Reproducibility
+Prerequisites:
+1. You need docker installed
+2. GCP account
+3. DBT account
+The steps to reproduce the projec
+
 

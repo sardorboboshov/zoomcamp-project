@@ -16,7 +16,7 @@ FILE_NAME = 'usage-stats'
 with DAG(
     dag_id="usage-stats",
     start_date=datetime(2025, 3, 15),
-    schedule_interval=None,
+    schedule_interval='@monthly',
     catchup=True,
 ) as dag:
 

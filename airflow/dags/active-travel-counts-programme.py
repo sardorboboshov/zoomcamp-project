@@ -19,8 +19,8 @@ FILE_NAME = 'ActiveTravelCountsProgramme'
 with DAG(
     dag_id='ActiveTravelCountsProgramme',
     start_date=datetime(2025, 3, 15),
-    schedule_interval=None,
-    catchup=True,
+    schedule_interval='@monthly',
+    catchup=False,
 ) as dag:
 
     fetch_file_urls = PythonOperator(
