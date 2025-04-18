@@ -45,9 +45,20 @@ The steps to reproduce the project:
     
     1. Run **docker-compose build .** to build the docker image
     2. Run **docker-compose up -d** to start the containers
-    3. Create the Google project and dataset 
-    4. Create the DBT project
-    4. Add the Google and DBT credentials to Variables and Connections
 
+2. Create the project in GCP. 
 
+3. Create the DBT project - in order to link your gcp and github follow the steps [here](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/04-analytics-engineering/dbt_cloud_setup.md), dont forget to save your service_account
 
+4. Add the Google and DBT credentials to Variables and Connections
+
+5. Required Variables for Airflow:  
+    1. **BUCKET_NAME** - the bucket name in your GCP, this is where all of your data will be stored
+    2. **DATA_LAKE_DESTINATION_PATH** - the folder name inside of BUCKET to store the files
+    3. **DATASET_PATH** - the dataset path inside of airflow to store the downloaded files from the website. We need to store these files in order to process and upload them to GCP in later stages.
+    4. **DBT_JOB_ID** - the job id for pushing the data to prod dataset
+
+6. Required Connectons for Airflow:
+    1. **dbt_cloud** - this connection is used to trigger the DBT job. Connection type must be **dbt Cloud**. **account_id** and **API Token** fields must be filled
+    2. **google_cloud** - this connection is used to upload the files and create the tables. 
+    You need to fill the project_id and put the json file to **Keyfile JSON** field
