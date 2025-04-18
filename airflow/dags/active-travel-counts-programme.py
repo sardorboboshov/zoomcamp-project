@@ -7,6 +7,8 @@ from airflow.models import Variable
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
 from astronomer.providers.dbt.cloud.operators.dbt import DbtCloudRunJobOperator
 import polars as pl
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
+from utils.ddl_tables import active_travel_counts_programme_sql
 
 DATASET_PATH = Variable.get('DATASET_PATH')
 
@@ -55,11 +57,22 @@ with DAG(
         bucket=BUCKET_NAME,  
         gcp_conn_id="google_cloud",  # Matches Airflow connection ID
     )
+    
+    create_table_task = BigQueryInsertJobOperator(
+        task_id="create_bigquery_table",
+        configuration={
+            "query": {
+                "query": active_travel_counts_programme_sql.format(project_id='kestra-449910', dataset_name='LhF_London', bucket_name='de-zoomcamp-sardor'),
+                "useLegacySql": False,
+            }
+        },
+        location="europe-west2",  # or "US" – depends on your dataset region
+        gcp_conn_id="google_cloud"
+    )
 
     trigger_dbt_cloud_job = DbtCloudRunJobOperator(
         task_id="trigger_dbt_job",
         job_id=Variable.get('DBT_JOB_ID'),  # Your dbt Cloud Job ID
-        # account_id=70471823431236, 
         dbt_cloud_conn_id="dbt_cloud",  # The connection ID you've set up in Airflow
         check_interval=30,  # polling interval in seconds
         timeout=600,  # timeout in seconds
@@ -67,4 +80,4 @@ with DAG(
     )
     
 
-    fetch_file_urls >> download_files_task >> process_files >> upload_file >> trigger_dbt_cloud_job
+    fetch_file_urls >> download_files_task >> process_files >> upload_file >> create_table_task >> trigger_dbt_cloud_job
