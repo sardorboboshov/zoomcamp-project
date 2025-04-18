@@ -21,7 +21,7 @@ with DAG(
     catchup=True,
 ) as dag:
 
-    task1 = PythonOperator(
+    fetch_file_urls = PythonOperator(
         task_id="fetch_file_urls",
         python_callable=list_of_files,
         op_kwargs={
@@ -29,7 +29,7 @@ with DAG(
         }
     )
 
-    task2 = PythonOperator(
+    download_files_task = PythonOperator(
         task_id="download_files",
         python_callable=download_files,
         provide_context=True,
@@ -58,8 +58,8 @@ with DAG(
 
     trigger_dbt_cloud_job = DbtCloudRunJobOperator(
         task_id="trigger_dbt_job",
-        job_id=70471823454045,  # Your dbt Cloud Job ID
-        account_id=70471823431236,  # Your dbt Cloud Account ID (optional if included in Extra)
+        job_id=Variable.get('DBT_JOB_ID'),  # Your dbt Cloud Job ID
+        # account_id=70471823431236, 
         dbt_cloud_conn_id="dbt_cloud",  # The connection ID you've set up in Airflow
         check_interval=30,  # polling interval in seconds
         timeout=600,  # timeout in seconds
@@ -67,4 +67,4 @@ with DAG(
     )
     
 
-    task1 >> task2 >> process_files >> upload_file >> trigger_dbt_cloud_job
+    fetch_file_urls >> download_files_task >> process_files >> upload_file >> trigger_dbt_cloud_job
