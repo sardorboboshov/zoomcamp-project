@@ -38,6 +38,16 @@ Prerequisites:
 1. You need docker installed
 2. GCP account
 3. DBT account
-The steps to reproduce the projec
+
+The steps to reproduce the project:
+
+1. Go to the airflow folder:
+    
+    1. Run **docker-compose build .** to build the docker image
+    2. Run **docker-compose up -d** to start the containers
+    3. Create the Google project and dataset 
+    4. Create the DBT project
+    4. Add the Google and DBT credentials to Variables and Connections
+
 
 
