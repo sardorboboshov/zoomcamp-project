@@ -23,11 +23,14 @@ Transformations happens 2 times in the project:
 4. **Batch processing**: Polars, Pandas
 
 ## Dashboard
-For visulisation, Looker Studio is used
+For visulisation, Looker Studio is used - here is the [Link](https://lookerstudio.google.com/reporting/45ebd5d9-2890-4b59-b6ec-0a33117ad953)
 
 Dashboard has 2 graphs:
 1. **First graph shows the monthly count of bike rental accross the 12 months**
 2. **Second graph shows the distribution of bike rentals among directions**
-    
+
 Visualisation created for choosen year(s) and direction(s).
+
+![graphs](dashboard.png)   
+
 
