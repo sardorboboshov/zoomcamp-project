@@ -20,7 +20,7 @@ with DAG(
     catchup=True,
 ) as dag:
 
-    task1 = PythonOperator(
+    fetch_file_urls_task = PythonOperator(
         task_id="fetch_file_urls",
         python_callable=list_of_files,
         op_kwargs={
@@ -28,7 +28,7 @@ with DAG(
         }
     )
 
-    task2 = PythonOperator(
+    download_files_task = PythonOperator(
         task_id="download_files",
         python_callable=download_files,
         provide_context=True,
@@ -36,13 +36,14 @@ with DAG(
             'dataset_path':DATASET_PATH + f'/{PROGRAM}'
         }
     )
-    info_columns = PythonOperator(
-        task_id="info_columns",
-        python_callable=dev_info_usage_stats_cols,
-        op_kwargs={
-            'dataset_path': DATASET_PATH + f'/{PROGRAM}'
-        }
-    )
+    
+    # info_columns = PythonOperator(
+    #     task_id="info_columns",
+    #     python_callable=dev_info_usage_stats_cols,
+    #     op_kwargs={
+    #         'dataset_path': DATASET_PATH + f'/{PROGRAM}'
+    #     }
+    # )
     process_files = PythonOperator(
         task_id="process_files",
         python_callable=process_usage_stats,
@@ -62,4 +63,10 @@ with DAG(
 
     
 
-    task1 >> task2 >> info_columns >> process_files >> upload_file
+    (
+        fetch_file_urls_task 
+        >> download_files_task 
+        # >> info_columns 
+        >> process_files 
+        >> upload_file
+    )
