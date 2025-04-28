@@ -19,8 +19,9 @@ FILE_NAME = 'ActiveTravelCountsProgramme'
 with DAG(
     dag_id='ActiveTravelCountsProgramme',
     start_date=datetime(2025, 3, 15),
-    schedule_interval='@monthly',
+    schedule='@monthly',
     catchup=False,
+    tags=['etl']
 ) as dag:
 
     fetch_file_urls = PythonOperator(
@@ -34,7 +35,6 @@ with DAG(
     download_files_task = PythonOperator(
         task_id="download_files",
         python_callable=download_files,
-        provide_context=True,
         op_kwargs={
             'dataset_path':DATASET_PATH + f'/{PROGRAM}'
         }

@@ -16,8 +16,9 @@ FILE_NAME = 'usage-stats'
 with DAG(
     dag_id="usage-stats",
     start_date=datetime(2025, 3, 15),
-    schedule_interval='@monthly',
+    schedule='@monthly',
     catchup=True,
+    tags=['etl']
 ) as dag:
 
     fetch_file_urls_task = PythonOperator(
@@ -31,7 +32,6 @@ with DAG(
     download_files_task = PythonOperator(
         task_id="download_files",
         python_callable=download_files,
-        provide_context=True,
         op_kwargs={
             'dataset_path':DATASET_PATH + f'/{PROGRAM}'
         }
