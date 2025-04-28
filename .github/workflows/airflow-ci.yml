@@ -37,8 +37,8 @@ jobs:
 
       - name: Run tests inside the container
         run: |
-                docker-compose exec airflow-webserver bash -c "pytest tests/"
+                docker-compose -f airflow/docker-compose.yaml exec airflow-webserver bash -c "pytest tests/"
 
       - name: Stop Docker container
         run: |
-                docker-compose down  # Stop and remove the containers after tests
+                docker-compose -f airflow/docker-compose.yaml down  # Stop and remove the containers after tests
