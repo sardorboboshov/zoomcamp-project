@@ -22,3 +22,16 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t my-airflow:ci-test ./airflow
+          
+      - name: Start Docker container
+        run: |
+            docker-compose -f airflow/docker-compose.yaml up -d  # Assuming you're using docker-compose, this starts the containers in the background
+
+
+      - name: Run tests inside the container
+        run: |
+                docker-compose exec airflow-webserver bash -c "pytest tests/"
+
+      - name: Stop Docker container
+        run: |
+                docker-compose down  # Stop and remove the containers after tests
