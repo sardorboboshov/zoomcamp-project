@@ -15,6 +15,7 @@ OPTIONS (
   uris = ['gs://{bucket_name}/files/usage-stats/*.parquet']
 );
 
+
 """
 
 active_travel_counts_programme_sql = """
