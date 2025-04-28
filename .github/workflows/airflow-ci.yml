@@ -21,4 +21,4 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t my-airflow:ci-test .
+          docker build -t ./airflow
