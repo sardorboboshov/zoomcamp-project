@@ -22,7 +22,11 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t my-airflow:ci-test ./airflow
-          
+      
+      - name: Set up Docker Compose
+        run: |
+          docker-compose -f ./docker-compose.yml build  # Build the services defined in docker-compose.yml
+                    
       - name: Start Docker container
         run: |
             docker-compose -f airflow/docker-compose.yaml up -d  # Assuming you're using docker-compose, this starts the containers in the background
