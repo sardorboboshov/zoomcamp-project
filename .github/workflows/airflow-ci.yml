@@ -27,4 +27,4 @@ jobs:
 
       - name: Lint code with flake8
         run: |
-          flake8 airflow/dags --select=F,E9 --show-source --statistics || true
+          flake8 airflow/dags --select=F,E9 --show-source --statistics
