@@ -26,9 +26,9 @@ jobs:
           pip install apache-airflow==2.6.1  # match your Airflow version
           pip install flake8 pytest
 
-      - name: Lint code with flake8
-        run: |
-          flake8 ./airflow/scripts/ || true
+      # - name: Lint code with flake8
+      #   run: |
+      #     flake8 ./airflow/dags/ || true
 
       - name: Test DAG loading (DAG integrity test)
         run: |

@@ -3,6 +3,7 @@ import os
 import sys
 from airflow.models import DagBag
 
+
 def main():
 
     dag_folder = os.getenv('DAG_FOLDER', 'dags')
@@ -19,4 +20,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
