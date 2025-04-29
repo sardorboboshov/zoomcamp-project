@@ -1,11 +1,9 @@
-from utils.etl_functions import list_of_files, download_files, dev_info_usage_stats_cols,process_usage_stats
+from utils.etl_functions import list_of_files, download_files,process_usage_stats
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.models.param import Param
 from datetime import datetime
 from airflow.models import Variable
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
-import polars as pl
 
 DATASET_PATH = Variable.get('DATASET_PATH')
 

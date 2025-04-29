@@ -42,7 +42,7 @@ def download_files(**kwargs):
     for url in file_urls:
         response = requests.get(url, stream=True, timeout=30)
         response.raise_for_status()
-        save_path = f'{DATASET_PATH}/{url.split('/')[-1]}'
+        save_path = f"{DATASET_PATH}/{url.split('/')[-1]}"
         print(save_path)
         with open(save_path, 'wb') as file:
             for chunk in response.iter_content(chunk_size=8192):
