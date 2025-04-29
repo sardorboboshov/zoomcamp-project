@@ -32,4 +32,4 @@ jobs:
 
       - name: Test DAG loading (DAG integrity test)
         run: |
-          python scripts/check_dags.py
+          python ./airflow/scripts/check_dags.py
