@@ -1,14 +1,10 @@
 import requests
 import pandas as pd
 import polars as pl
-from google.cloud import storage
-import requests
 import xml.etree.ElementTree as ET
 import glob
 from time import time
 from collections import Counter
-import pyarrow as pa
-import pyarrow.parquet as pq
 
 def list_of_files(program, ti):
     print(ti)
@@ -88,6 +84,7 @@ def process_active_travel_counts(**kwargs):
 
             final_df = df if final_df is None else final_df.vstack(df)
         except Exception as e:
+            print(e)
             df = pl.read_csv(file)
             print(file, df.columns)
     if final_df is not None:
