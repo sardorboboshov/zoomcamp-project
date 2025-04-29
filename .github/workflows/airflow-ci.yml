@@ -23,13 +23,8 @@ jobs:
 
       - name: Install minimal requirements
         run: |
-          pip install apache-airflow==2.6.1  # match your Airflow version
-          pip install flake8 pytest
+          pip install flake8
 
-      # - name: Lint code with flake8
-      #   run: |
-      #     flake8 ./airflow/dags/ || true
-
-      - name: Test DAG loading (DAG integrity test)
+      - name: Lint code with flake8
         run: |
-          python ./airflow/scripts/check_dags.py
+          flake8 airflow/dags --select=F,E9 --show-source --statistics
