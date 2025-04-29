@@ -93,7 +93,7 @@ def process_active_travel_counts(**kwargs):
         t2 = time()
         print(f"It took {t2 - t1:.3f} seconds to process the files and convert to parquet!")
     else:
-        print('No files were processed.") 
+        print("No files were processed.") 
 
 def process_usage_stats(**kwargs):
 
