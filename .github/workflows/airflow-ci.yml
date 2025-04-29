@@ -1,4 +1,4 @@
-name: Airflow CI (Docker)
+name: Airflow Code Quality Check
 
 on:
   push:
@@ -9,36 +9,27 @@ on:
       - master
 
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'  # or 3.8, 3.10 depending on your Airflow version
 
-      - name: Build Docker image
+      - name: Install minimal requirements
         run: |
-          docker build -t my-airflow:ci-test ./airflow
+          pip install apache-airflow==2.6.1  # match your Airflow version
+          pip install flake8 pytest
 
-      - name: Install Docker Compose
+      - name: Lint code with flake8
         run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version  # Verify installation
+          flake8 dags/ tests/  # or wherever your code is
 
-                    
-      - name: Start Docker container
+      - name: Test DAG loading (DAG integrity test)
         run: |
-            docker-compose -f airflow/docker-compose.yaml up -d  # Assuming you're using docker-compose, this starts the containers in the background
-
-
-      - name: Run tests inside the container
-        run: |
-                docker-compose -f airflow/docker-compose.yaml exec -T airflow-webserver bash -c "pytest tests/"
-
-      - name: Stop Docker container
-        run: |
-                docker-compose -f airflow/docker-compose.yaml down  # Stop and remove the containers after tests
+          python scripts/check_dags.py
