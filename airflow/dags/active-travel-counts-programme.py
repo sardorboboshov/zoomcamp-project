@@ -43,7 +43,7 @@ with DAG(
         task_id="process_files",
         python_callable=process_active_travel_counts,
         op_kwargs={
-            'dataset_path': DATASET_PATH + f'/{PROGRAM}',
+            'dataset_path': DATASET_PATH + f'/{PROGRAM}'
             'file_name': FILE_NAME
         }
     )
