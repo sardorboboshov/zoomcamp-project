@@ -28,7 +28,7 @@ jobs:
 
       - name: Lint code with flake8
         run: |
-          flake8 dags/ tests/  # or wherever your code is
+          flake8 ./airflow/scripts/
 
       - name: Test DAG loading (DAG integrity test)
         run: |
