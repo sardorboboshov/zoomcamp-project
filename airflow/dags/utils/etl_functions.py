@@ -1,14 +1,10 @@
 import requests
 import pandas as pd
 import polars as pl
-from google.cloud import storage
-import requests
 import xml.etree.ElementTree as ET
 import glob
 from time import time
 from collections import Counter
-import pyarrow as pa
-import pyarrow.parquet as pq
 
 def list_of_files(program, ti):
     print(ti)
@@ -42,7 +38,7 @@ def download_files(**kwargs):
     for url in file_urls:
         response = requests.get(url, stream=True, timeout=30)
         response.raise_for_status()
-        save_path = f'{DATASET_PATH}/{url.split('/')[-1]}'
+        save_path = f"{DATASET_PATH}/{url.split('/')[-1]}"
         print(save_path)
         with open(save_path, 'wb') as file:
             for chunk in response.iter_content(chunk_size=8192):
@@ -88,6 +84,7 @@ def process_active_travel_counts(**kwargs):
 
             final_df = df if final_df is None else final_df.vstack(df)
         except Exception as e:
+            print(e)
             df = pl.read_csv(file)
             print(file, df.columns)
     if final_df is not None:

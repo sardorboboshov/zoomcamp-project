@@ -1,12 +1,10 @@
 from utils.etl_functions import list_of_files, download_files, process_active_travel_counts
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.models.param import Param
 from datetime import datetime
 from airflow.models import Variable
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
 from astronomer.providers.dbt.cloud.operators.dbt import DbtCloudRunJobOperator
-import polars as pl
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from utils.ddl_tables import active_travel_counts_programme_sql
 
